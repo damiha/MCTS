@@ -1,16 +1,21 @@
+import MCTS.Game;
+import MCTS.Move;
+import MCTS.Player;
+
 import java.util.ArrayList;
 
-public class Game {
+public class TTTGame implements Game {
 
     char[][] board;
-    char player;
+    Player player;
     int emptySquares = 9;
 
-    public Game(){
+    public TTTGame(){
 
         board = new char[3][3];
-        // This player starts
-        player = 'X';
+
+        // BLUE = X, RED = O
+        player = Player.BLUE;
 
         for(int y = 0;y < 3; y++){
             for(int x = 0; x < 3; x++){
@@ -19,8 +24,8 @@ public class Game {
         }
     }
 
-    public Game getDeepCopy(){
-        Game deepCopy = new Game();
+    public TTTGame getDeepCopy(){
+        TTTGame deepCopy = new TTTGame();
 
         deepCopy.player = player;
         deepCopy.emptySquares = emptySquares;
@@ -33,32 +38,39 @@ public class Game {
         return deepCopy;
     }
 
-    public ArrayList<Integer> getAllLegalMoves(){
+    public ArrayList<Move> getAllLegalMoves(){
 
-        ArrayList<Integer> allLegalMoves = new ArrayList<Integer>();
+        ArrayList<Move> allLegalMoves = new ArrayList<>();
 
         for(int y = 0; y < 3; y++){
             for(int x = 0; x < 3; x++){
                 if(board[y][x] == '.')
-                    allLegalMoves.add(3 * y + x + 1);
+                    allLegalMoves.add(new TTTMove(3 * y + x + 1));
             }
         }
         return allLegalMoves;
     }
 
-    public void move(int num){
+    public void move(Move move){
+
+        // ignore other types of moves
+        if(!(move instanceof TTTMove)){
+            return;
+        }
         // translate number from 1 - 9 to indices 0..2
+        int num = ((TTTMove)move).getNumber();
         num -= 1;
         int y = num / 3;
         int x = num % 3;
-        board[y][x] = player;
 
-        player =  player == 'X' ? 'O' : 'X';
+        board[y][x] = player == Player.BLUE ? 'X' : 'O';
+
+        player =  player.getOpponent();
         emptySquares -= 1;
     }
 
-    public char getOpponent(){
-        return player == 'X' ? 'O' : 'X';
+    public Player getOpponent(){
+        return player.getOpponent();
     }
 
     public String toString(){
@@ -73,7 +85,7 @@ public class Game {
         return rep;
     }
 
-    public char whoWon(){
+    public Player whoWon(){
 
         // check horizontal lines
         for(int y = 0;y < 3; y++){
@@ -85,7 +97,7 @@ public class Game {
             }
 
             if(xPoints == 3 || yPoints == 3){
-                return xPoints == 3 ? 'X' : 'O';
+                return xPoints == 3 ? Player.BLUE : Player.RED;
             }
         }
 
@@ -99,7 +111,7 @@ public class Game {
             }
 
             if(xPoints == 3 || yPoints == 3){
-                return xPoints == 3 ? 'X' : 'O';
+                return xPoints == 3 ?  Player.BLUE : Player.RED;
             }
         }
 
@@ -113,7 +125,7 @@ public class Game {
         }
 
         if(xPoints == 3 || yPoints == 3){
-            return xPoints == 3 ? 'X' : 'O';
+            return xPoints == 3 ?  Player.BLUE : Player.RED;
         }
 
         xPoints = 0;
@@ -125,10 +137,14 @@ public class Game {
         }
 
         if(xPoints == 3 || yPoints == 3){
-            return xPoints == 3 ? 'X' : 'O';
+            return xPoints == 3 ?  Player.BLUE : Player.RED;
         }
 
         // D = draw, - as not decided yet
-        return emptySquares == 0 ? 'D' : '-';
+        return emptySquares == 0 ? Player.NOBODY_DRAW : Player.NOBODY_IN_PROGRESS;
+    }
+
+    public Player getPlayer(){
+        return player;
     }
 }

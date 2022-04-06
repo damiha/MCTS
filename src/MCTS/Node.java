@@ -1,3 +1,5 @@
+package MCTS;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -5,12 +7,15 @@ public class Node {
 
     Node parent;
     Game game;
-    int move;
+    Move move;
 
     ArrayList<Node> children;
 
     double nwins;
+    double ndraws;
+    double nlosses;
     double ngames;
+
 
     // create root node
     public Node(Game game){
@@ -18,24 +23,30 @@ public class Node {
         this.children = new ArrayList<>();
 
         nwins = 0.0;
+        ndraws = 0.0;
+        nlosses = 0.0;
         ngames = 0.0;
     }
     // create child nodes
-    public Node(Game game, Node parent, int move){
+    public Node(Game game, Node parent, Move move){
         this(game);
         this.parent = parent;
         this.move = move;
     }
 
     public void expandChildren(){
-        ArrayList<Integer> allLegalMoves = game.getAllLegalMoves();
+        ArrayList<Move> allLegalMoves = game.getAllLegalMoves();
 
-        for(Integer legalMove : allLegalMoves){
+        for(Move legalMove : allLegalMoves){
 
             Game gameAfterMove = game.getDeepCopy();
             gameAfterMove.move(legalMove);
             children.add(new Node(gameAfterMove, this, legalMove));
         }
+    }
+
+    public Move getMove(){
+        return move;
     }
 
     public boolean isLeaf(){
@@ -47,7 +58,7 @@ public class Node {
         if(ngames == 0.0){
             return Double.POSITIVE_INFINITY;
         }
-        double exploitationTerm = nwins / (double) ngames;
+        double exploitationTerm = (1 * nwins  + 1 * ndraws - 1 * nlosses) / ngames;
         double explorationTerm = Math.sqrt(Math.log(parent.ngames) / ngames);
 
         double C = 2.0;
@@ -60,40 +71,45 @@ public class Node {
         return nwins / ngames;
     }
 
-    public void propagate(char winnerOfRollout){
+    public void propagate(Player winnerOfRollout){
 
         Node current = this;
 
         while(current != null){
             current.ngames += 1.0;
 
-            if(winnerOfRollout == 'D'){
-                current.nwins += 0.5;
+            if(winnerOfRollout == Player.NOBODY_DRAW){
+                current.ndraws += 1.0;
             }
             else{
-                current.nwins += (winnerOfRollout != current.game.player ? 1.0 : 0.0);
+                if(winnerOfRollout == current.game.getPlayer()){
+                    current.nlosses += 1;
+                }
+                else{
+                    current.nwins += 1;
+                }
             }
             current = current.parent;
         }
     }
 
-    char rollout(){
+    Player rollout(){
 
         // maybe this is already a terminal state ?
-        if(game.whoWon() != '-'){
+        if(game.whoWon() != Player.NOBODY_IN_PROGRESS){
             return game.whoWon();
         }
 
         Game tempGame = game.getDeepCopy();
-        ArrayList<Integer> movesFromHere = tempGame.getAllLegalMoves();
+        ArrayList<Move> movesFromHere = tempGame.getAllLegalMoves();
         Collections.shuffle(movesFromHere);
 
-        for(Integer move : movesFromHere){
+        for(Move move : movesFromHere){
 
             tempGame.move(move);
 
             // did we win after making the move
-            if(tempGame.whoWon() != '-'){
+            if(tempGame.whoWon() != Player.NOBODY_IN_PROGRESS){
                 return tempGame.whoWon();
             }
         }
@@ -101,7 +117,7 @@ public class Node {
     }
 
     public void performRollout(){
-        char winnerOfRollout = rollout();
+        Player winnerOfRollout = rollout();
         propagate(winnerOfRollout);
     }
 }

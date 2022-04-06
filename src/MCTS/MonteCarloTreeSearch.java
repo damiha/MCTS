@@ -1,3 +1,5 @@
+package MCTS;
+
 public class MonteCarloTreeSearch {
 
     Node root;
@@ -7,17 +9,17 @@ public class MonteCarloTreeSearch {
         root.expandChildren();
     }
 
-    public int getBestMove(int iterations){
+    public Move getBestMove(int iterations){
 
         for(int i = 0; i < iterations; i++){
             runStep();
         }
-        double bestWinRate = 0;
-        int bestMove = 0;
+        double mostVisited = 0;
+        Move bestMove = null;
         // minimize opponents win rate
         for(Node child : root.children){
-            if(child.getWinRate() > bestWinRate){
-                bestWinRate = child.getWinRate();
+            if(child.ngames > mostVisited){
+                mostVisited = child.ngames;
                 bestMove = child.move;
             }
         }
@@ -26,7 +28,7 @@ public class MonteCarloTreeSearch {
 
     public void showDistribution(){
         for(Node child : root.children){
-            System.out.print(child.move + " : [" + child.nwins + "/" + child.ngames + "] - ");
+            System.out.print(child.move.getString() + " : [W: " + child.nwins + ", D: " + child.ndraws + ", L: " + child.nlosses + "] - ");
         }
         System.out.println();
     }
@@ -61,6 +63,10 @@ public class MonteCarloTreeSearch {
 
             if(!current.isLeaf()){
                 current.children.get(0).performRollout();
+            }
+            else{
+                // terminal state: just do a rollout
+                current.performRollout();
             }
         }
     }
