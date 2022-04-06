@@ -6,13 +6,12 @@ public class MonteCarloTreeSearch {
 
     public MonteCarloTreeSearch(Game game, NodeFactory nodeFactory){
         root = nodeFactory.createRootNode(game);
-        root.expandChildren();
     }
 
+    // CORRECT
     public Move getBestMove(int iterations){
 
         for(int i = 0; i < iterations; i++){
-            //showDistribution();
             runStep();
         }
         double mostVisited = 0;
@@ -28,48 +27,29 @@ public class MonteCarloTreeSearch {
     }
 
     public void showDistribution(){
-        System.out.print("perspective of root: ");
         for(Node child : root.children){
-            System.out.print(child.move.getString() + " : [W: " + child.nlosses + ", D: " + child.ndraws + ", L: " + child.nwins + "] - ");
+            System.out.println(child.move.getString() + " : [VAL: " + child.value + " VIS: " + child.ngames + "] - ");
         }
         System.out.println();
     }
 
-    public void runStep(){
-
+    public Node select(){
         // take path along the tree that maximizes the ucb1 value
         Node current = root;
 
-        // showDistribution();
-
         // 1. selection
-        while(!current.isLeaf()){
-
-            double bestUCB1 = Double.NEGATIVE_INFINITY;
-            Node bestNode = null;
-
-            for(Node child : current.children){
-                if(child.getUCB1() > bestUCB1){
-                    bestUCB1 = child.getUCB1();
-                    bestNode = child;
-                }
-            }
-            current = bestNode;
+        while(current.untriedMoves.size() == 0 && current.children.size() != 0){
+            current = current.uctSelectChild();
         }
+        return current;
+    }
 
-        if(current.ngames == 0) {
-            current.performRollout();
-        }
-        else{
-            current.expandChildren();
+    public void runStep(){
 
-            if(!current.isLeaf()){
-                current.children.get(0).performRollout();
-            }
-            else{
-                // terminal state: just do a rollout
-                current.performRollout();
-            }
-        }
+        Node current = select();
+        current = current.expand();
+
+        double reward = current.rollout();
+        current.propagate(reward);
     }
 }

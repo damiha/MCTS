@@ -12,6 +12,8 @@ public interface Game {
 
     Player getPlayer();
 
+    Player getPlayerBeforeMove();
+
     Player getOpponent();
 
     Player whoWon();

@@ -11,7 +11,7 @@ public class TTTREPL {
         Game game = new TTTGame();
         NodeFactory nodeFactory = new TTTNodeFactory();
 
-        int iterations = 1000000;
+        int iterations = 1000;
 
         Scanner sc = new Scanner(System.in);
         System.out.println(game.getRepresentation());

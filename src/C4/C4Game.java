@@ -9,6 +9,8 @@ import java.util.ArrayList;
 public class C4Game implements Game {
 
     Player player;
+    Player playerBeforeMove;
+
     char[][] board;
 
     int width = 7;
@@ -18,6 +20,8 @@ public class C4Game implements Game {
 
     public C4Game(){
         this.player = Player.BLUE;
+        playerBeforeMove = player;
+
         board = new char[height][width];
 
         for(int y = 0; y < height; y++){
@@ -31,7 +35,7 @@ public class C4Game implements Game {
     public Game getDeepCopy() {
         C4Game deepCopy = new C4Game();
 
-        deepCopy.player = player;
+        deepCopy.player = player == Player.BLUE ? Player.BLUE : Player.RED;
         deepCopy.emptySquares = emptySquares;
 
         for(int y = 0;y < height; y++){
@@ -71,7 +75,7 @@ public class C4Game implements Game {
                 break;
             }
         }
-
+        playerBeforeMove = player;
         player = player.getOpponent();
         emptySquares --;
     }
@@ -79,6 +83,11 @@ public class C4Game implements Game {
     @Override
     public Player getPlayer() {
         return player;
+    }
+
+    @Override
+    public Player getPlayerBeforeMove() {
+        return playerBeforeMove;
     }
 
     @Override
