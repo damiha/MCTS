@@ -15,4 +15,6 @@ public interface Game {
     Player getOpponent();
 
     Player whoWon();
+
+    String getRepresentation();
 }

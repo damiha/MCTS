@@ -1,25 +1,22 @@
-import MCTS.Game;
-import MCTS.MonteCarloTreeSearch;
-import MCTS.Move;
-import MCTS.Player;
+package TTT;
+
+import MCTS.*;
 
 import java.util.Scanner;
 
-public class GameREPL {
+public class TTTREPL {
 
-    private final Game game;
-    private final int iterations = 10000000;
+    public static void main(String[] args) {
 
-    public GameREPL(Game game){
-        this.game = game;
-    }
+        Game game = new TTTGame();
+        NodeFactory nodeFactory = new TTTNodeFactory();
 
-    public void run(){
+        int iterations = 1000000;
 
         Scanner sc = new Scanner(System.in);
-        System.out.println(game);
+        System.out.println(game.getRepresentation());
 
-        MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(game);
+        MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(game, nodeFactory);
         Move bestMove = mcts.getBestMove(iterations);
         mcts.showDistribution();
         System.out.println("best move according to mcts: " + bestMove.getString());
@@ -31,7 +28,7 @@ public class GameREPL {
             // interpret as a move
             Move nextMove = TTTMove.fromString(command);
             game.move(nextMove);
-            System.out.println(game);
+            System.out.println(game.getRepresentation());
 
             Player whoWon;
             if((whoWon = game.whoWon()) != Player.NOBODY_IN_PROGRESS){
@@ -44,8 +41,8 @@ public class GameREPL {
                 // exit the program
                 return;
             }
-
-            mcts = new MonteCarloTreeSearch(game);
+            // TODO: don't build up new Monte Carlo Tree
+            mcts = new MonteCarloTreeSearch(game, nodeFactory);
             bestMove = mcts.getBestMove(iterations);
             mcts.showDistribution();
             System.out.println("best move according to mcts: " + bestMove.getString());

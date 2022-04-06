@@ -1,3 +1,5 @@
+package TTT;
+
 import MCTS.Game;
 import MCTS.Move;
 import MCTS.Player;
@@ -73,18 +75,6 @@ public class TTTGame implements Game {
         return player.getOpponent();
     }
 
-    public String toString(){
-        String rep = "";
-        rep += ("current player: " + player + "\n");
-        for(int y = 0;y < 3; y++){
-            for(int x = 0; x < 3; x++){
-                rep += (board[y][x] + " ");
-            }
-            rep += "\n";
-        }
-        return rep;
-    }
-
     public Player whoWon(){
 
         // check horizontal lines
@@ -142,6 +132,23 @@ public class TTTGame implements Game {
 
         // D = draw, - as not decided yet
         return emptySquares == 0 ? Player.NOBODY_DRAW : Player.NOBODY_IN_PROGRESS;
+    }
+
+    @Override
+    public String getRepresentation() {
+        String rep = "";
+        rep += ("current player: " + player + "\n");
+        for(int y = 0;y < 3; y++){
+            for(int x = 0; x < 3; x++){
+                rep += (board[y][x] + " ");
+            }
+            rep += "\n";
+        }
+        return rep;
+    }
+
+    public String toString(){
+        return getRepresentation();
     }
 
     public Player getPlayer(){

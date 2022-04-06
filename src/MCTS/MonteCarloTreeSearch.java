@@ -4,14 +4,15 @@ public class MonteCarloTreeSearch {
 
     Node root;
 
-    public MonteCarloTreeSearch(Game game){
-        root = new Node(game.getDeepCopy());
+    public MonteCarloTreeSearch(Game game, NodeFactory nodeFactory){
+        root = nodeFactory.createRootNode(game);
         root.expandChildren();
     }
 
     public Move getBestMove(int iterations){
 
         for(int i = 0; i < iterations; i++){
+            //showDistribution();
             runStep();
         }
         double mostVisited = 0;
@@ -27,8 +28,9 @@ public class MonteCarloTreeSearch {
     }
 
     public void showDistribution(){
+        System.out.print("perspective of root: ");
         for(Node child : root.children){
-            System.out.print(child.move.getString() + " : [W: " + child.nwins + ", D: " + child.ndraws + ", L: " + child.nlosses + "] - ");
+            System.out.print(child.move.getString() + " : [W: " + child.nlosses + ", D: " + child.ndraws + ", L: " + child.nwins + "] - ");
         }
         System.out.println();
     }
