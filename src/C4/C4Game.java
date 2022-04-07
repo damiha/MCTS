@@ -2,6 +2,7 @@ package C4;
 
 import MCTS.Game;
 import MCTS.Move;
+import MCTS.MoveFormatException;
 import MCTS.Player;
 
 import java.util.ArrayList;
@@ -75,6 +76,22 @@ public class C4Game implements Game {
         }
         player = Player.getOpponent(player);
         emptySquares --;
+    }
+
+    @Override
+    public void makeUserMove(Move userMove) throws MoveFormatException {
+
+        C4Move c4Move = (C4Move) userMove;
+
+        if(c4Move.num() < 1 || c4Move.num() > width){
+            throw new MoveFormatException("column should be between 1 and " + width);
+        }
+
+        if(!getAllLegalMoves().contains(c4Move)){
+            throw new MoveFormatException("this move is illegal.");
+        }
+
+        move(userMove);
     }
 
     @Override
@@ -199,5 +216,10 @@ public class C4Game implements Game {
             rep += "\n";
         }
         return rep;
+    }
+
+    @Override
+    public String getTitle() {
+        return "Connect 4";
     }
 }

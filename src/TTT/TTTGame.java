@@ -1,7 +1,9 @@
 package TTT;
 
+import C4.C4Move;
 import MCTS.Game;
 import MCTS.Move;
+import MCTS.MoveFormatException;
 import MCTS.Player;
 
 import java.util.ArrayList;
@@ -69,6 +71,22 @@ public class TTTGame implements Game {
 
         player =  Player.getOpponent(player);
         emptySquares -= 1;
+    }
+
+    @Override
+    public void makeUserMove(Move userMove) throws MoveFormatException {
+
+        TTTMove tttMove = (TTTMove) userMove;
+
+        if(tttMove.num() < 1 || tttMove.num() > 9){
+            throw new MoveFormatException("column should be between 1 and 9.");
+        }
+
+        if(!getAllLegalMoves().contains(tttMove)){
+            throw new MoveFormatException("this move is illegal.");
+        }
+
+        move(userMove);
     }
 
     public Player getWinner(){
@@ -141,6 +159,11 @@ public class TTTGame implements Game {
             rep += "\n";
         }
         return rep;
+    }
+
+    @Override
+    public String getTitle() {
+        return "Tic Tac Toe";
     }
 
     public String toString(){

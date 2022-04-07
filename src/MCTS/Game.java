@@ -6,6 +6,8 @@ public interface Game {
 
     void move(Move move);
 
+    void makeUserMove(Move userMove) throws MoveFormatException;
+
     Game getDeepCopy();
 
     ArrayList<Move> getAllLegalMoves();
@@ -28,4 +30,6 @@ public interface Game {
     }
 
     String getString();
+
+    String getTitle();
 }

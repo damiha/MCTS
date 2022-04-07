@@ -12,8 +12,4 @@ public record TTTMove(int num) implements Move {
     public String getString() {
         return "" + num;
     }
-
-    public static TTTMove fromString(String s) {
-        return new TTTMove(Integer.parseInt(s));
-    }
 }

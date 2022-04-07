@@ -1,16 +1,18 @@
 package DotsAndBoxes;
 
+import C4.C4Move;
 import MCTS.Game;
 import MCTS.Move;
+import MCTS.MoveFormatException;
 import MCTS.Player;
 
 import java.util.ArrayList;
 
 public class DBGame implements Game {
 
-    private final static int WIDTH = 3;
-    private final static int HEIGHT = 3;
-    private final static int MIN_CAPTURES_TO_WIN = (WIDTH * HEIGHT) / 2 + 1;
+    private final int width;
+    private final int height;
+    private final int minCapturesToWin;
 
     private Player player;
     private Player prevPlayer;
@@ -20,7 +22,12 @@ public class DBGame implements Game {
 
     private final Tile[][] board;
 
-    public DBGame(){
+    public DBGame(int width, int height){
+
+        this.width = width;
+        this.height = height;
+        this.minCapturesToWin = (width * height) / 2 + 1;
+
         // Blue player begins by convention
         player = Player.BLUE;
         prevPlayer = Player.BLUE;
@@ -28,10 +35,10 @@ public class DBGame implements Game {
         blueCaptured = 0;
         redCaptured = 0;
 
-        board = new Tile[HEIGHT][WIDTH];
+        board = new Tile[height][width];
 
-        for(int y = 0; y < HEIGHT; y++){
-            for(int x = 0; x < WIDTH; x++){
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
                 board[y][x] = new Tile(x, y);
             }
         }
@@ -64,11 +71,11 @@ public class DBGame implements Game {
             board[y - 1][x].clickAt(Direction.BOTTOM);
             hasCaptureOccurred = hasCaptureOccuredAt(x, y - 1);
         }
-        else if(direction == Direction.RIGHT && x + 1 < WIDTH){
+        else if(direction == Direction.RIGHT && x + 1 < width){
             board[y][x + 1].clickAt(Direction.LEFT);
             hasCaptureOccurred = hasCaptureOccuredAt(x + 1, y);
         }
-        else if(direction == Direction.BOTTOM && y + 1 < HEIGHT){
+        else if(direction == Direction.BOTTOM && y + 1 < height){
             board[y + 1][x].clickAt(Direction.TOP);
             hasCaptureOccurred = hasCaptureOccuredAt(x, y + 1);
         }
@@ -90,15 +97,35 @@ public class DBGame implements Game {
     }
 
     @Override
+    public void makeUserMove(Move userMove) throws MoveFormatException {
+
+        DBMove dbMove = (DBMove) userMove;
+
+        if(dbMove.x() < 0 || dbMove.x() >= width){
+            throw new MoveFormatException("x should be between 0 and " + (width - 1));
+        }
+
+        if(dbMove.y() < 0 || dbMove.y() >= height){
+            throw new MoveFormatException("y should be between 0 and " + (height - 1));
+        }
+
+        if(!getAllLegalMoves().contains(dbMove)){
+            throw new MoveFormatException("this move is illegal.");
+        }
+
+        move(userMove);
+    }
+
+    @Override
     public Game getDeepCopy() {
-        DBGame deepCopy = new DBGame();
+        DBGame deepCopy = new DBGame(this.width, this.height);
         deepCopy.player = this.player;
         deepCopy.prevPlayer = player;
         deepCopy.blueCaptured = this.blueCaptured;
         deepCopy.redCaptured = this.redCaptured;
 
-        for(int y = 0; y < HEIGHT; y++){
-            for(int x = 0; x < WIDTH; x++){
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
                 deepCopy.board[y][x] = this.board[y][x].getDeepCopy();
             }
         }
@@ -110,8 +137,8 @@ public class DBGame implements Game {
 
         ArrayList<Move> allLegalMoves = new ArrayList<Move>();
 
-        for(int y = 0; y < HEIGHT; y++){
-            for(int x = 0; x < WIDTH; x++){
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
 
                 allLegalMoves.addAll(board[y][x].getAllMovesForTile());
             }
@@ -126,14 +153,14 @@ public class DBGame implements Game {
 
     @Override
     public Player getWinner() {
-        if(blueCaptured >= MIN_CAPTURES_TO_WIN){
+        if(blueCaptured >= minCapturesToWin){
             return Player.BLUE;
         }
-        else if(redCaptured >= MIN_CAPTURES_TO_WIN){
+        else if(redCaptured >= minCapturesToWin){
             return Player.RED;
         }
         // a draw is possible if the number of tiles is even
-        else if(blueCaptured + redCaptured == WIDTH * HEIGHT){
+        else if(blueCaptured + redCaptured == width * height){
             return Player.NOBODY_DRAW;
         }
         else{
@@ -149,13 +176,13 @@ public class DBGame implements Game {
         int charactersPerTileHeight = board[0][0].getConsoleRepresentation().length;
 
         // last subtraction term because we draw the tiles over one another (third column of left tile = first column of right tile etc)
-        int characterWidth = charactersPerTileWidth * WIDTH - (WIDTH - 1);
-        int characterHeight = charactersPerTileHeight * HEIGHT - (HEIGHT - 1);
+        int characterWidth = charactersPerTileWidth * width - (width - 1);
+        int characterHeight = charactersPerTileHeight * height - (height - 1);
 
         char[][] characters = new char[characterHeight][characterWidth];
 
-        for(int y = 0; y < HEIGHT; y++){
-            for(int x = 0;  x < WIDTH; x++){
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
 
                 // we want the tiles to overlap
                 int startX = (charactersPerTileWidth - 1) * x;
@@ -176,6 +203,11 @@ public class DBGame implements Game {
             finalConsoleBoard += String.valueOf(characters[y]) + "\n";
         }
         return finalConsoleBoard;
+    }
+
+    @Override
+    public String getTitle() {
+        return "Dots and Boxes";
     }
 
     public String toString(){
