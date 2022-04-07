@@ -45,8 +45,11 @@ public class MonteCarloTreeSearch {
             }
         });
 
-        for(Node child : root.getChildren()){
+        //  limit to the 5 most promising moves
 
+        for(int i = 0; i < root.getChildren().size() && i < 5; i++){
+
+            Node child = root.getChildren().get(i);
             String playerString = "" + child.getPlayerWhoTookMove();
             String moveString = child.getMoveThatLedToPosition().getString();
             String statString = String.format("move: %s, evaluation: [val: %d, vis: %d, ucb1: %.4f] for Player %s", moveString, child.getValue(), child.getVisits(), child.getUCB1(), playerString);

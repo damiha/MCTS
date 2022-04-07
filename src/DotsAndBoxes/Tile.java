@@ -1,51 +1,32 @@
 package DotsAndBoxes;
 
+import MCTS.Move;
 import MCTS.Player;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Tile{
 
     private int x;
     private int y;
-    private Position position;
 
     private boolean[] clicked;
     private Player capturedBy;
 
-    // TODO: optimize this, the class only needs 7 or so arrays as bitmasks, saves memory for each game
-    // you don't need to copy this as it is constructed based on the position
-    private boolean[] clickable;
-
-    public Tile(int x, int y, Position position){
+    public Tile(int x, int y){
         this.x = x;
         this.y = y;
-        this.position = position;
 
        clicked = new boolean[]{false, false, false, false};
-
-        switch (position) {
-            case TOP_LEFT -> clickable = new boolean[]{false, true, true, false};
-            case TOP_CENTER -> clickable = new boolean[]{false, true, true, true};
-            case TOP_RIGHT -> clickable = new boolean[]{false, false, true, true};
-            case LEFT_CENTER -> clickable = new boolean[]{true, true, true, false};
-            case RIGHT_CENTER -> clickable = new boolean[]{true, false, true, true};
-            case BOTTOM_LEFT -> clickable = new boolean[]{true, true, false, false};
-            case BOTTOM_CENTER -> clickable = new boolean[]{true, true, false, true};
-            case BOTTOM_RIGHT -> clickable = new boolean[]{true, false, false, true};
-            case CENTER -> clickable = new boolean[]{true, true, true, true};
-        }
     }
 
     public boolean isCaptured(){
-        return (!clickable[Direction.TOP.get()] || clicked[Direction.TOP.get()]) &&
-                (!clickable[Direction.RIGHT.get()] || clicked[Direction.RIGHT.get()]) &&
-                (!clickable[Direction.BOTTOM.get()] || clicked[Direction.BOTTOM.get()]) &&
-                (!clickable[Direction.LEFT.get()] || clicked[Direction.LEFT.get()]);
+        return clicked[Direction.TOP.get()] && clicked[Direction.RIGHT.get()] && clicked[Direction.BOTTOM.get()] && clicked[Direction.LEFT.get()];
     }
 
     public Tile getDeepCopy(){
-        Tile deepCopy = new Tile(this.x, this.y, this.position);
+        Tile deepCopy = new Tile(this.x, this.y);
         deepCopy.clicked = Arrays.copyOf(this.clicked, 4);
         deepCopy.capturedBy = this.capturedBy;
 
@@ -60,30 +41,38 @@ public class Tile{
         capturedBy = player;
     }
 
-    public boolean isRightPossible(){
-        return !clicked[Direction.RIGHT.get()] && clickable[Direction.RIGHT.get()];
-    }
+    public ArrayList<Move> getAllMovesForTile(){
+        ArrayList<Move> allMoves = new ArrayList<Move>();
 
-    public boolean isBottomPossible(){
-        return !clicked[Direction.BOTTOM.get()] && clickable[Direction.BOTTOM.get()];
+        if(!clicked[Direction.TOP.get()]){
+            allMoves.add(new DBMove(x, y, Direction.TOP));
+        }
+        if(!clicked[Direction.RIGHT.get()]){
+            allMoves.add(new DBMove(x, y, Direction.RIGHT));
+        }
+        if(!clicked[Direction.BOTTOM.get()]){
+            allMoves.add(new DBMove(x, y, Direction.BOTTOM));
+        }
+        if(!clicked[Direction.LEFT.get()]){
+            allMoves.add(new DBMove(x, y, Direction.LEFT));
+        }
+        return allMoves;
     }
 
     public char[][] getConsoleRepresentation(){
 
-        char topChar = !clickable[Direction.TOP.get()] || clicked[Direction.TOP.get()] ? '_' : '.';
-        char rightChar = !clickable[Direction.RIGHT.get()] || clicked[Direction.RIGHT.get()] ? '|' : '.';
-        char bottomChar = !clickable[Direction.BOTTOM.get()] || clicked[Direction.BOTTOM.get()] ? '_' : '.';
-        char leftChar = !clickable[Direction.LEFT.get()] || clicked[Direction.LEFT.get()] ? '|' : '.';
+        char topChar = clicked[Direction.TOP.get()] ? '_' : '.';
+        char rightChar = clicked[Direction.RIGHT.get()] ? '|' : '.';
+        char bottomChar = clicked[Direction.BOTTOM.get()] ? '_' : '.';
+        char leftChar = clicked[Direction.LEFT.get()] ? '|' : '.';
 
         char captureChar = capturedBy == Player.BLUE ? 'B' : (capturedBy == Player.RED ? 'R' : ' ');
 
-        char[][] consoleRepresentation = {
+        return new char[][]{
                 {'x',topChar, topChar, topChar, 'x'},
                 {leftChar,' ', captureChar, ' ', rightChar},
                 {'x',bottomChar, bottomChar, bottomChar, 'x'},
 
         };
-
-        return consoleRepresentation;
     }
 }

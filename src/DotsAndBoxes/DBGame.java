@@ -32,35 +32,9 @@ public class DBGame implements Game {
 
         for(int y = 0; y < HEIGHT; y++){
             for(int x = 0; x < WIDTH; x++){
-                board[y][x] = new Tile(x, y, getPositionFrom(x, y));
+                board[y][x] = new Tile(x, y);
             }
         }
-    }
-
-    private Position getPositionFrom(int x, int y){
-        boolean isLeft = x == 0;
-        boolean isRight = x == WIDTH - 1;
-        boolean isTop = y == 0;
-        boolean isBottom = y == HEIGHT - 1;
-
-        if(isTop && isLeft)
-            return Position.TOP_LEFT;
-        else if(isTop && isRight)
-            return Position.TOP_RIGHT;
-        else if(isTop)
-            return Position.TOP_CENTER;
-        else if(isBottom && isLeft)
-            return Position.BOTTOM_LEFT;
-        else if(isBottom && isRight)
-            return Position.BOTTOM_RIGHT;
-        else if(isBottom)
-            return Position.BOTTOM_CENTER;
-        else if(isLeft)
-            return Position.LEFT_CENTER;
-        else if(isRight)
-            return Position.RIGHT_CENTER;
-        else
-            return Position.CENTER;
     }
 
     public boolean hasCaptureOccuredAt(int x, int y){
@@ -86,19 +60,24 @@ public class DBGame implements Game {
 
         boolean hasCaptureOccurred = false;
 
-        if(direction == Direction.RIGHT){
+        if(direction == Direction.TOP && y - 1 >= 0){
+            board[y - 1][x].clickAt(Direction.BOTTOM);
+            hasCaptureOccurred = hasCaptureOccuredAt(x, y - 1);
+        }
+        else if(direction == Direction.RIGHT && x + 1 < WIDTH){
             board[y][x + 1].clickAt(Direction.LEFT);
-
             hasCaptureOccurred = hasCaptureOccuredAt(x + 1, y);
         }
-        // only moves with RIGHT or BOTTOM direction are generated
-        else{
+        else if(direction == Direction.BOTTOM && y + 1 < HEIGHT){
             board[y + 1][x].clickAt(Direction.TOP);
-
             hasCaptureOccurred = hasCaptureOccuredAt(x, y + 1);
         }
-        board[y][x].clickAt(direction);
+        else if(direction == Direction.LEFT && x - 1 >= 0){
+            board[y][x - 1].clickAt(Direction.RIGHT);
+            hasCaptureOccurred = hasCaptureOccuredAt(x - 1, y);
+        }
 
+        board[y][x].clickAt(direction);
         hasCaptureOccurred =  hasCaptureOccuredAt(x, y) || hasCaptureOccurred;
 
         // save prev player
@@ -126,7 +105,6 @@ public class DBGame implements Game {
         return deepCopy;
     }
 
-    // TODO: optimize this, the number of legal moves is strictly decreasing
     @Override
     public ArrayList<Move> getAllLegalMoves() {
 
@@ -135,12 +113,7 @@ public class DBGame implements Game {
         for(int y = 0; y < HEIGHT; y++){
             for(int x = 0; x < WIDTH; x++){
 
-                if(board[y][x].isRightPossible()){
-                    allLegalMoves.add(new DBMove(x, y, Direction.RIGHT));
-                }
-                if(board[y][x].isBottomPossible()){
-                    allLegalMoves.add(new DBMove(x, y, Direction.BOTTOM));
-                }
+                allLegalMoves.addAll(board[y][x].getAllMovesForTile());
             }
         }
         return allLegalMoves;
@@ -191,9 +164,7 @@ public class DBGame implements Game {
                 char[][] consoleRepresentation = board[y][x].getConsoleRepresentation();
 
                 for(int i = 0; i < charactersPerTileHeight; i++){
-                    for(int j = 0; j < charactersPerTileWidth; j++){
-                        characters[startY + i][startX + j] = consoleRepresentation[i][j];
-                    }
+                    System.arraycopy(consoleRepresentation[i], 0, characters[startY + i], startX, charactersPerTileWidth);
                 }
             }
         }

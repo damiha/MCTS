@@ -8,6 +8,8 @@ public class DBREPL {
 
     public static void main(String[] args) {
 
+        Player humanPlayer = Player.BLUE;
+
         Game game = new DBGame();
         NodeFactory nodeFactory = new DBNodeFactory();
 
@@ -16,11 +18,12 @@ public class DBREPL {
         Scanner sc = new Scanner(System.in);
         System.out.println(game.getString());
 
-        MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(game, nodeFactory);
-        Move bestMove = mcts.getBestMove(iterations);
-        mcts.showDistribution();
-        System.out.println("best move according to mcts: " + bestMove.getString());
-
+        if(game.getPlayer() != humanPlayer) {
+            MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(game, nodeFactory);
+            Move bestMove = mcts.getBestMove(iterations);
+            mcts.showDistribution();
+            System.out.println("best move according to mcts: " + bestMove.getString());
+        }
         while(true){
             System.out.print("command: ");
             String command = sc.nextLine();
@@ -41,12 +44,12 @@ public class DBREPL {
                 // exit the program
                 return;
             }
-            // TODO: don't build up new Monte Carlo Tree
-            mcts = new MonteCarloTreeSearch(game, nodeFactory);
-            bestMove = mcts.getBestMove(iterations);
-
-            mcts.showDistribution();
-            System.out.println("best move according to mcts: " + bestMove.getString());
+            if(game.getPlayer() != humanPlayer){
+                MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(game, nodeFactory);
+                Move bestMove = mcts.getBestMove(iterations);
+                mcts.showDistribution();
+                System.out.println("best move according to mcts: " + bestMove.getString());
+            }
         }
     }
 }
