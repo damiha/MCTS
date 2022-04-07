@@ -8,19 +8,23 @@ import java.util.ArrayList;
 
 public class DBGame implements Game {
 
-    private final static int WIDTH = 5;
-    private final static int HEIGHT = 5;
+    private final static int WIDTH = 3;
+    private final static int HEIGHT = 3;
     private final static int MIN_CAPTURES_TO_WIN = (WIDTH * HEIGHT) / 2 + 1;
 
     private Player player;
+    private Player prevPlayer;
+
     private int blueCaptured;
     private int redCaptured;
 
-    private Tile[][] board;
+    private final Tile[][] board;
 
     public DBGame(){
         // Blue player begins by convention
         player = Player.BLUE;
+        prevPlayer = Player.BLUE;
+
         blueCaptured = 0;
         redCaptured = 0;
 
@@ -95,7 +99,10 @@ public class DBGame implements Game {
         }
         board[y][x].clickAt(direction);
 
-        hasCaptureOccurred = hasCaptureOccurred || hasCaptureOccuredAt(x, y);
+        hasCaptureOccurred =  hasCaptureOccuredAt(x, y) || hasCaptureOccurred;
+
+        // save prev player
+        prevPlayer = player;
 
         // a player who captures a tile gets to take another turn
         if(!hasCaptureOccurred){
@@ -107,6 +114,7 @@ public class DBGame implements Game {
     public Game getDeepCopy() {
         DBGame deepCopy = new DBGame();
         deepCopy.player = this.player;
+        deepCopy.prevPlayer = player;
         deepCopy.blueCaptured = this.blueCaptured;
         deepCopy.redCaptured = this.redCaptured;
 
@@ -197,5 +205,13 @@ public class DBGame implements Game {
             finalConsoleBoard += String.valueOf(characters[y]) + "\n";
         }
         return finalConsoleBoard;
+    }
+
+    public String toString(){
+        return getString();
+    }
+
+    public Player getPrevPlayer(){
+        return prevPlayer;
     }
 }

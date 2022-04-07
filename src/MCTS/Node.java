@@ -22,7 +22,7 @@ public abstract class Node {
     public Node(Game game){
 
         this.game = game;
-        this.playerWhoTookMove = Player.getOpponent(game.getPlayer());
+        this.playerWhoTookMove = game.getPrevPlayer();
 
         // if the game is over, there are no moves left to try => empty array list
         this.movesToTry = game.getWinner() == Player.NOBODY_IN_PROGRESS ? game.getAllLegalMoves() : new ArrayList<>();

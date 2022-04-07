@@ -12,6 +12,11 @@ public interface Game {
 
     Player getPlayer();
 
+    // in Games were players can make multiple moves in a row, this MUST be overwritten!
+    default Player getPrevPlayer(){
+        return Player.getOpponent(getPlayer());
+    }
+
     Player getWinner();
 
     default boolean isInProgress(){
