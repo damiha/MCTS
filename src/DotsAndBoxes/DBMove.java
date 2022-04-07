@@ -2,18 +2,11 @@ package DotsAndBoxes;
 
 import MCTS.Move;
 
-enum Direction{
-    TOP,
-    RIGHT,
-    BOTTOM,
-    LEFT
-}
-
 public record DBMove(int x, int y, Direction direction) implements Move {
 
     @Override
     public String getString() {
-        return null;
+        return String.format("%d,%d,%s", x, y, direction);
     }
 
     public DBMove fromString(String s){

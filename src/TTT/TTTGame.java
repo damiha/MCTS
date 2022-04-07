@@ -10,7 +10,6 @@ public class TTTGame implements Game {
 
     char[][] board;
     Player player;
-    Player playerBeforeMove;
     int emptySquares = 9;
 
     public TTTGame(){
@@ -19,7 +18,6 @@ public class TTTGame implements Game {
 
         // BLUE = X, RED = O
         player = Player.BLUE;
-        playerBeforeMove = player;
 
         for(int y = 0;y < 3; y++){
             for(int x = 0; x < 3; x++){
@@ -32,7 +30,6 @@ public class TTTGame implements Game {
         TTTGame deepCopy = new TTTGame();
 
         deepCopy.player = player;
-        deepCopy.playerBeforeMove = playerBeforeMove;
         deepCopy.emptySquares = emptySquares;
 
         for(int y = 0;y < 3; y++){
@@ -68,7 +65,6 @@ public class TTTGame implements Game {
         int y = num / 3;
         int x = num % 3;
 
-        playerBeforeMove = player;
         board[y][x] = player == Player.BLUE ? 'X' : 'O';
 
         player =  Player.getOpponent(player);
