@@ -1,9 +1,6 @@
 package C4;
 
 import MCTS.*;
-import TTT.TTTGame;
-import TTT.TTTMove;
-import TTT.TTTNodeFactory;
 
 import java.util.Scanner;
 
@@ -17,7 +14,7 @@ public class C4REPL {
         int iterations = 100000;
 
         Scanner sc = new Scanner(System.in);
-        System.out.println(game.getRepresentation());
+        System.out.println(game.getString());
 
         MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(game, nodeFactory);
         Move bestMove = mcts.getBestMove(iterations);
@@ -31,10 +28,10 @@ public class C4REPL {
             // interpret as a move
             Move nextMove = C4Move.fromString(command);
             game.move(nextMove);
-            System.out.println(game.getRepresentation());
+            System.out.println(game.getString());
 
             Player whoWon;
-            if((whoWon = game.whoWon()) != Player.NOBODY_IN_PROGRESS){
+            if((whoWon = game.getWinner()) != Player.NOBODY_IN_PROGRESS){
                 if(whoWon != Player.NOBODY_DRAW){
                     System.out.println("player " + whoWon + " has won the game!");
                 }

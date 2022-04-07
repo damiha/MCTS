@@ -19,54 +19,14 @@ public class TTTNode extends Node {
         super(game, parent, move);
     }
 
-    public Node expand(){
-
-        // do never expand a terminal node
-        if(game.whoWon() != Player.NOBODY_IN_PROGRESS){
-            // terminal state has no untried moves
-            untriedMoves.clear();
-            return this;
-        }
-
-        if(untriedMoves.size() != 0){
-            int randomIndex = (new Random()).nextInt(untriedMoves.size());
-            Move randomNextMove = untriedMoves.get(randomIndex);
-
-            Game gameAfterMove = game.getDeepCopy();
-            gameAfterMove.move(randomNextMove);
-
-            untriedMoves.remove(randomNextMove);
-            Node newNode = new TTTNode(gameAfterMove, this, randomNextMove);
-            children.add(newNode);
-
-            return newNode;
-        }
-        return this;
-    }
-
-    // parent != null, since only called in child nodes
-    public double getUCB1(){
-        if(ngames == 0.0){
-            return Double.POSITIVE_INFINITY;
-        }
-        double exploitationTerm = value / ngames;
-        double explorationTerm = Math.sqrt(Math.log(parent.ngames) / ngames);
-
-        double C = Math.sqrt(2.0);
-        return exploitationTerm + C * explorationTerm;
-    }
-
-    public double rollout(){
+    public Player rollout(){
 
         // maybe this is already a terminal state ?
-        if(game.whoWon() != Player.NOBODY_IN_PROGRESS){
-           if(game.whoWon() == Player.NOBODY_DRAW){
-               return 0;
-           }
-           return game.whoWon() == game.getPlayerBeforeMove() ? 1.0 : -1.0;
+        if(getGame().isGameOver()){
+           return getGame().getWinner();
         }
 
-        Game tempGame = game.getDeepCopy();
+        Game tempGame = getGame().getDeepCopy();
         ArrayList<Move> movesFromHere = tempGame.getAllLegalMoves();
         Collections.shuffle(movesFromHere);
 
@@ -75,11 +35,8 @@ public class TTTNode extends Node {
             tempGame.move(move);
 
             // did we win after making the move
-            if(tempGame.whoWon() != Player.NOBODY_IN_PROGRESS){
-                if(tempGame.whoWon() == Player.NOBODY_DRAW){
-                    return 0.0;
-                }
-                return tempGame.whoWon() == game.getPlayerBeforeMove() ? 1.0 : -1.0;
+            if(tempGame.isGameOver()){
+                return tempGame.getWinner();
             }
         }
         throw new RuntimeException("Simulation finished without a result. This should never happen!");

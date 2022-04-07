@@ -71,15 +71,11 @@ public class TTTGame implements Game {
         playerBeforeMove = player;
         board[y][x] = player == Player.BLUE ? 'X' : 'O';
 
-        player =  player.getOpponent();
+        player =  Player.getOpponent(player);
         emptySquares -= 1;
     }
 
-    public Player getOpponent(){
-        return player.getOpponent();
-    }
-
-    public Player whoWon(){
+    public Player getWinner(){
 
         // check horizontal lines
         for(int y = 0;y < 3; y++){
@@ -139,7 +135,7 @@ public class TTTGame implements Game {
     }
 
     @Override
-    public String getRepresentation() {
+    public String getString() {
         String rep = "";
         rep += ("current player: " + player + "\n");
         for(int y = 0;y < 3; y++){
@@ -152,15 +148,10 @@ public class TTTGame implements Game {
     }
 
     public String toString(){
-        return getRepresentation();
+        return getString();
     }
 
     public Player getPlayer(){
         return player;
-    }
-
-    @Override
-    public Player getPlayerBeforeMove() {
-        return playerBeforeMove;
     }
 }

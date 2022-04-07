@@ -16,7 +16,7 @@ public enum Player {
         NOBODY_DRAW.opponent = Player.NOBODY_DRAW;
     }
 
-    public Player getOpponent(){
-        return opponent;
+    public static Player getOpponent(Player player){
+        return player.opponent;
     }
 }

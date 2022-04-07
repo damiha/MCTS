@@ -14,7 +14,7 @@ public class TTTREPL {
         int iterations = 1000;
 
         Scanner sc = new Scanner(System.in);
-        System.out.println(game.getRepresentation());
+        System.out.println(game.getString());
 
         MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(game, nodeFactory);
         Move bestMove = mcts.getBestMove(iterations);
@@ -28,10 +28,10 @@ public class TTTREPL {
             // interpret as a move
             Move nextMove = TTTMove.fromString(command);
             game.move(nextMove);
-            System.out.println(game.getRepresentation());
+            System.out.println(game.getString());
 
             Player whoWon;
-            if((whoWon = game.whoWon()) != Player.NOBODY_IN_PROGRESS){
+            if((whoWon = game.getWinner()) != Player.NOBODY_IN_PROGRESS){
                 if(whoWon != Player.NOBODY_DRAW){
                     System.out.println("player " + whoWon + " has won the game!");
                 }

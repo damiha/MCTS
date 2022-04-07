@@ -77,23 +77,13 @@ public class C4Game implements Game {
             }
         }
         playerBeforeMove = player;
-        player = player.getOpponent();
+        player = Player.getOpponent(player);
         emptySquares --;
     }
 
     @Override
     public Player getPlayer() {
         return player;
-    }
-
-    @Override
-    public Player getPlayerBeforeMove() {
-        return playerBeforeMove;
-    }
-
-    @Override
-    public Player getOpponent() {
-        return player.getOpponent();
     }
 
     // TODO: make more efficient
@@ -185,7 +175,7 @@ public class C4Game implements Game {
     }
 
     @Override
-    public Player whoWon() {
+    public Player getWinner() {
 
         if(horizontal4Connected() != Player.NOBODY_IN_PROGRESS){
             return horizontal4Connected();
@@ -199,11 +189,11 @@ public class C4Game implements Game {
         else if(LLtoURDiagonal4Connected() != Player.NOBODY_IN_PROGRESS){
             return LLtoURDiagonal4Connected();
         }
-        return emptySquares > 1 ? Player.NOBODY_IN_PROGRESS : Player.NOBODY_DRAW;
+        return emptySquares == 0 ? Player.NOBODY_DRAW : Player.NOBODY_IN_PROGRESS;
     }
 
     @Override
-    public String getRepresentation() {
+    public String getString() {
         String rep = "";
         rep += ("current player: " + player + "\n");
         for(int y = 0;y < height; y++){

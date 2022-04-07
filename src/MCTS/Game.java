@@ -4,19 +4,23 @@ import java.util.ArrayList;
 
 public interface Game {
 
+    void move(Move move);
+
     Game getDeepCopy();
 
     ArrayList<Move> getAllLegalMoves();
 
-    void move(Move move);
-
     Player getPlayer();
 
-    Player getPlayerBeforeMove();
+    Player getWinner();
 
-    Player getOpponent();
+    default boolean isInProgress(){
+        return getWinner() == Player.NOBODY_IN_PROGRESS;
+    }
 
-    Player whoWon();
+    default boolean isGameOver(){
+        return getWinner() != Player.NOBODY_IN_PROGRESS;
+    }
 
-    String getRepresentation();
+    String getString();
 }

@@ -2,33 +2,41 @@ package MCTS;
 
 public class MonteCarloTreeSearch {
 
-    Node root;
+    private final Node root;
+    private final NodeFactory nodeFactory;
 
     public MonteCarloTreeSearch(Game game, NodeFactory nodeFactory){
         root = nodeFactory.createRootNode(game);
+        this.nodeFactory = nodeFactory;
     }
 
-    // CORRECT
     public Move getBestMove(int iterations){
 
+        // TODO: don't use iterations, make it time based
         for(int i = 0; i < iterations; i++){
             runStep();
         }
-        double mostVisited = 0;
+        double mostVisits = 0;
         Move bestMove = null;
         // minimize opponents win rate
-        for(Node child : root.children){
-            if(child.ngames > mostVisited){
-                mostVisited = child.ngames;
-                bestMove = child.move;
+        for(Node child : root.getChildren()){
+
+            int childVisits = child.getVisits();
+
+            if(childVisits > mostVisits){
+                mostVisits = childVisits;
+                bestMove = child.getMoveThatLedToPosition();
             }
         }
         return bestMove;
     }
 
     public void showDistribution(){
-        for(Node child : root.children){
-            System.out.println(child.move.getString() + " : [VAL: " + child.value + " VIS: " + child.ngames + " UCT: " + child.getUCB1() + "]");
+        for(Node child : root.getChildren()){
+
+            String moveString = child.getMoveThatLedToPosition().getString();
+            String statString = String.format("move: %s, [val: %d, vis: %d, ucb1: %.4f]", moveString, child.getValue(), child.getVisits(), child.getUCB1());
+            System.out.println(statString);
         }
         System.out.println();
     }
@@ -38,20 +46,19 @@ public class MonteCarloTreeSearch {
         Node current = root;
 
         // 1. selection
-        while(current.untriedMoves.size() == 0 && current.children.size() != 0){
+        while(current.isFullyExpanded() && current.isNotLeafNode()){
             current = current.uctSelectChild();
         }
+
         return current;
     }
 
     public void runStep(){
 
         Node current = select();
-        current = current.expand();
+        current = current.expand(nodeFactory);
 
-        double reward = current.rollout();
-        current.propagate(reward);
-
-        // showDistribution();
+        Player winnerOfRollout = current.rollout();
+        current.propagate(winnerOfRollout);
     }
 }
