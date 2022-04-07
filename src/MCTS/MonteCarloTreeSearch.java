@@ -1,5 +1,7 @@
 package MCTS;
 
+import java.util.Comparator;
+
 public class MonteCarloTreeSearch {
 
     private final Node root;
@@ -32,10 +34,22 @@ public class MonteCarloTreeSearch {
     }
 
     public void showDistribution(){
+
+        // sort by visits => best moves up top
+        // sorting is permanent (destroys randomness that was created during expansion) but tree gets rebuild for every move
+        root.getChildren().sort(new Comparator<Node>() {
+            @Override
+            public int compare(Node o1, Node o2) {
+                // we want the reverse order (elements with most visits should come first)
+                return Integer.compare(o2.getVisits(), o1.getVisits());
+            }
+        });
+
         for(Node child : root.getChildren()){
 
+            String playerString = "" + child.getPlayerWhoTookMove();
             String moveString = child.getMoveThatLedToPosition().getString();
-            String statString = String.format("move: %s, [val: %d, vis: %d, ucb1: %.4f]", moveString, child.getValue(), child.getVisits(), child.getUCB1());
+            String statString = String.format("move: %s, evaluation: [val: %d, vis: %d, ucb1: %.4f] for Player %s", moveString, child.getValue(), child.getVisits(), child.getUCB1(), playerString);
             System.out.println(statString);
         }
         System.out.println();

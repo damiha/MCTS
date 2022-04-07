@@ -146,4 +146,8 @@ public abstract class Node {
     public boolean isNotLeafNode(){
         return !children.isEmpty();
     }
+
+    public Player getPlayerWhoTookMove(){
+        return playerWhoTookMove;
+    }
 }
