@@ -21,6 +21,13 @@ public class TTTNode extends Node {
 
     public Node expand(){
 
+        // do never expand a terminal node
+        if(game.whoWon() != Player.NOBODY_IN_PROGRESS){
+            // terminal state has no untried moves
+            untriedMoves.clear();
+            return this;
+        }
+
         if(untriedMoves.size() != 0){
             int randomIndex = (new Random()).nextInt(untriedMoves.size());
             Move randomNextMove = untriedMoves.get(randomIndex);

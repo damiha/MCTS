@@ -20,6 +20,12 @@ public class C4Node extends Node {
 
     public Node expand(){
 
+        // never expand terminal nodes
+        if(game.whoWon() != Player.NOBODY_IN_PROGRESS){
+            untriedMoves.clear();
+            return this;
+        }
+
         if(untriedMoves.size() != 0){
             int randomIndex = (new Random()).nextInt(untriedMoves.size());
             Move randomNextMove = untriedMoves.get(randomIndex);

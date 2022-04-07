@@ -19,12 +19,10 @@ public class C4REPL {
         Scanner sc = new Scanner(System.in);
         System.out.println(game.getRepresentation());
 
-        /*
         MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(game, nodeFactory);
         Move bestMove = mcts.getBestMove(iterations);
         mcts.showDistribution();
         System.out.println("best move according to mcts: " + bestMove.getString());
-        */
 
         while(true){
             System.out.print("command: ");
@@ -47,13 +45,11 @@ public class C4REPL {
                 return;
             }
             // TODO: don't build up new Monte Carlo Tree
-            MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(game, nodeFactory);
-            Move bestMove = mcts.getBestMove(iterations);
-            // if it's humans turn (blue), dont show evaluation
-            if(game.getPlayer() == Player.RED){
-                mcts.showDistribution();
-                System.out.println("best move according to mcts: " + bestMove.getString());
-            }
+            mcts = new MonteCarloTreeSearch(game, nodeFactory);
+            bestMove = mcts.getBestMove(iterations);
+
+            mcts.showDistribution();
+            System.out.println("best move according to mcts: " + bestMove.getString());
         }
     }
 }

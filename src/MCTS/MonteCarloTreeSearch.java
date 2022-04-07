@@ -28,7 +28,7 @@ public class MonteCarloTreeSearch {
 
     public void showDistribution(){
         for(Node child : root.children){
-            System.out.println(child.move.getString() + " : [VAL: " + child.value + " VIS: " + child.ngames + "] - ");
+            System.out.println(child.move.getString() + " : [VAL: " + child.value + " VIS: " + child.ngames + " UCT: " + child.getUCB1() + "]");
         }
         System.out.println();
     }
@@ -51,5 +51,7 @@ public class MonteCarloTreeSearch {
 
         double reward = current.rollout();
         current.propagate(reward);
+
+        // showDistribution();
     }
 }

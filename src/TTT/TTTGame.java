@@ -32,6 +32,7 @@ public class TTTGame implements Game {
         TTTGame deepCopy = new TTTGame();
 
         deepCopy.player = player;
+        deepCopy.playerBeforeMove = playerBeforeMove;
         deepCopy.emptySquares = emptySquares;
 
         for(int y = 0;y < 3; y++){

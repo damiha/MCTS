@@ -35,7 +35,8 @@ public class C4Game implements Game {
     public Game getDeepCopy() {
         C4Game deepCopy = new C4Game();
 
-        deepCopy.player = player == Player.BLUE ? Player.BLUE : Player.RED;
+        deepCopy.player = player;
+        deepCopy.playerBeforeMove = playerBeforeMove;
         deepCopy.emptySquares = emptySquares;
 
         for(int y = 0;y < height; y++){
