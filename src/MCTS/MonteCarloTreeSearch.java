@@ -7,17 +7,35 @@ public class MonteCarloTreeSearch {
     private final Node root;
     private final NodeFactory nodeFactory;
 
-    public MonteCarloTreeSearch(Game game, NodeFactory nodeFactory){
+    public MonteCarloTreeSearch(Game game, NodeFactory nodeFactory, int iterations){
+        root = nodeFactory.createRootNode(game);
+        this.nodeFactory = nodeFactory;
+    }
+
+    public MonteCarloTreeSearch(Game game, NodeFactory nodeFactory, double secondsToThink){
         root = nodeFactory.createRootNode(game);
         this.nodeFactory = nodeFactory;
     }
 
     public Move getBestMove(int iterations){
 
-        // TODO: don't use iterations, make it time based
         for(int i = 0; i < iterations; i++){
             runStep();
         }
+        return selectBestMove();
+    }
+
+    public Move getBestMove(double secondsToThink){
+
+        long startTime = System.currentTimeMillis();
+
+        while(((double)(System.currentTimeMillis() - startTime) / 1000) < secondsToThink){
+            runStep();
+        }
+        return selectBestMove();
+    }
+
+    public Move selectBestMove(){
         double mostVisits = 0;
         Move bestMove = null;
         // minimize opponents win rate

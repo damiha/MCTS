@@ -12,9 +12,9 @@ public class TTTMain {
         Game game = new TTTGame();
         NodeFactory nodeFactory = new TTTNodeFactory();
         MoveFactory moveFactory = new TTTMoveFactory();
-        int iterations = 10000;
+        double secondsToThink = 10.0;
 
-        REPL repl = new REPL(game, nodeFactory, moveFactory, iterations);
+        REPL repl = new REPL(game, nodeFactory, moveFactory, secondsToThink);
 
         repl.runREPL();
     }
