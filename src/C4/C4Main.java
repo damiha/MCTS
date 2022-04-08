@@ -14,9 +14,11 @@ public class C4Main {
         Game game = new C4Game();
         NodeFactory nodeFactory = new C4NodeFactory();
         MoveFactory moveFactory = new C4MoveFactory();
-        int iterations = 10000;
 
-        REPL repl = new REPL(game, nodeFactory, moveFactory, iterations);
+        MCTSConfiguration mctsConfiguration = new MCTSConfiguration();
+        mctsConfiguration.setFixedTime(5.0);
+
+        REPL repl = new REPL(game, nodeFactory, moveFactory, mctsConfiguration);
 
         repl.runREPL();
     }

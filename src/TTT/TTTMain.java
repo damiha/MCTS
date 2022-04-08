@@ -1,9 +1,6 @@
 package TTT;
 
-import MCTS.Game;
-import MCTS.MoveFactory;
-import MCTS.NodeFactory;
-import MCTS.REPL;
+import MCTS.*;
 
 public class TTTMain {
 
@@ -12,9 +9,11 @@ public class TTTMain {
         Game game = new TTTGame();
         NodeFactory nodeFactory = new TTTNodeFactory();
         MoveFactory moveFactory = new TTTMoveFactory();
-        double secondsToThink = 10.0;
 
-        REPL repl = new REPL(game, nodeFactory, moveFactory, secondsToThink);
+        MCTSConfiguration mctsConfiguration = new MCTSConfiguration();
+        mctsConfiguration.setFixedIterations(1000);
+
+        REPL repl = new REPL(game, nodeFactory, moveFactory, mctsConfiguration);
 
         repl.runREPL();
     }

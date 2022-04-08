@@ -7,43 +7,27 @@ public class REPL {
     private final Game game;
     private final NodeFactory nodeFactory;
     private final MoveFactory moveFactory;
-    private final int iterations;
-    private final double secondsToThink;
 
-    private final MCTSConfiguration configuration;
-    private MonteCarloTreeSearch monteCarloTreeSearch;
+    private final MCTSConfiguration mctsConfiguration;
     private final Scanner scanner;
 
-    // TODO: make another monte carlo constructor that takes max calculation time as a parameter
     // TODO: add a settings / stats menu
-
-    public REPL(Game game, NodeFactory nodeFactory, MoveFactory moveFactory, int iterations) {
+    public REPL(Game game, NodeFactory nodeFactory, MoveFactory moveFactory, MCTSConfiguration mctsConfiguration) {
         this.game = game;
         this.nodeFactory = nodeFactory;
         this.moveFactory = moveFactory;
-        this.iterations = iterations;
-        this.secondsToThink = 0.0;
 
         this.scanner = new Scanner(System.in);
-        this.configuration = MCTSConfiguration.FIXED_ITERATIONS;
+        this.mctsConfiguration = mctsConfiguration;
 
         System.out.println("----------   " + game.getTitle() + "   ----------");
-        System.out.println("the MCTS uses a FIXED number of " + iterations + " ITERATIONS\n");
-    }
 
-    public REPL(Game game, NodeFactory nodeFactory, MoveFactory moveFactory, double secondsToThink) {
-        this.game = game;
-        this.nodeFactory = nodeFactory;
-        this.moveFactory = moveFactory;
-        this.secondsToThink = secondsToThink;
-        this.iterations = 0;
+        if(mctsConfiguration.getMode() == MCTSMode.FIXED_ITERATIONS){
+            System.out.println("the MCTS uses a FIXED number of " + mctsConfiguration.getIterations() + " ITERATIONS\n");
 
-        this.scanner = new Scanner(System.in);
-        this.monteCarloTreeSearch = new MonteCarloTreeSearch(game, nodeFactory, secondsToThink);
-        this.configuration = MCTSConfiguration.FIXED_TIME;
-
-        System.out.println("----------   " + game.getTitle() + "   ----------");
-        System.out.println("the MCTS uses a FIXED TIME of " + secondsToThink + "s to think\n");
+        }else{
+            System.out.println("the MCTS uses a FIXED TIME of " + mctsConfiguration.getSecondsToThink() + "s to think\n");
+        }
     }
 
     public Player readInPlayer() {
@@ -89,18 +73,8 @@ public class REPL {
 
     // TODO: don't build up the whole Monte Carlo Tree again
     public void runMCTSandShowResult(){
-
-        Move bestMove = null;
-
-        if(configuration == MCTSConfiguration.FIXED_ITERATIONS){
-            this.monteCarloTreeSearch = new MonteCarloTreeSearch(game, nodeFactory, iterations);
-            bestMove = monteCarloTreeSearch.getBestMove(iterations);
-        }
-        else if(configuration == MCTSConfiguration.FIXED_TIME){
-            this.monteCarloTreeSearch = new MonteCarloTreeSearch(game, nodeFactory, secondsToThink);
-            bestMove = monteCarloTreeSearch.getBestMove(secondsToThink);
-        }
-
+        MonteCarloTreeSearch monteCarloTreeSearch = new MonteCarloTreeSearch(game, nodeFactory, mctsConfiguration);
+        Move bestMove = monteCarloTreeSearch.getBestMove();
         monteCarloTreeSearch.showDistribution();
         System.out.println("best move according to MCTS: " + bestMove.getString());
     }

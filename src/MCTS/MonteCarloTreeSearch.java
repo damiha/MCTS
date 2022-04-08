@@ -6,15 +6,20 @@ public class MonteCarloTreeSearch {
 
     private final Node root;
     private final NodeFactory nodeFactory;
+    private final MCTSConfiguration mctsConfiguration;
 
-    public MonteCarloTreeSearch(Game game, NodeFactory nodeFactory, int iterations){
+    public MonteCarloTreeSearch(Game game, NodeFactory nodeFactory, MCTSConfiguration mctsConfiguration){
         root = nodeFactory.createRootNode(game);
         this.nodeFactory = nodeFactory;
+        this.mctsConfiguration = mctsConfiguration;
     }
-
-    public MonteCarloTreeSearch(Game game, NodeFactory nodeFactory, double secondsToThink){
-        root = nodeFactory.createRootNode(game);
-        this.nodeFactory = nodeFactory;
+    public Move getBestMove(){
+        if(mctsConfiguration.getMode() == MCTSMode.FIXED_ITERATIONS){
+            return getBestMove(mctsConfiguration.getIterations());
+        }
+        else{
+            return getBestMove(mctsConfiguration.getSecondsToThink());
+        }
     }
 
     public Move getBestMove(int iterations){
