@@ -17,6 +17,7 @@ public class C4Main {
 
         MCTSConfiguration mctsConfiguration = new MCTSConfiguration();
         mctsConfiguration.setFixedTime(5.0);
+        mctsConfiguration.setRolloutsPerLeaf(20);
 
         REPL repl = new REPL(game, nodeFactory, moveFactory, mctsConfiguration);
 

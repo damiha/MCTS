@@ -90,7 +90,7 @@ public abstract class Node {
         return exploitationTerm + C * explorationTerm;
     }
 
-    public void propagate(Player winnerOfRollout){
+    public void singlePropagate(Player winnerOfRollout){
 
         Node current = this;
 
@@ -103,8 +103,25 @@ public abstract class Node {
             else if(winnerOfRollout == Player.getOpponent(current.playerWhoTookMove)){
                 current.value -= 1;
             }
-            // nothing happens when the game is drawn!
+            current = current.parent;
+        }
+    }
 
+    public void multiPropagate(Player[] winners) {
+
+        Node current = this;
+
+        while (current != null) {
+
+            for (Player winnerOfRollout : winners) {
+                current.visits += 1.0;
+
+                if (winnerOfRollout == current.playerWhoTookMove) {
+                    current.value += 1;
+                } else if (winnerOfRollout == Player.getOpponent(current.playerWhoTookMove)) {
+                    current.value -= 1;
+                }
+            }
             current = current.parent;
         }
     }

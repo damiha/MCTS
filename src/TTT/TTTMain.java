@@ -11,7 +11,8 @@ public class TTTMain {
         MoveFactory moveFactory = new TTTMoveFactory();
 
         MCTSConfiguration mctsConfiguration = new MCTSConfiguration();
-        mctsConfiguration.setFixedIterations(1000);
+        mctsConfiguration.setFixedTime(5.0);
+        mctsConfiguration.setRolloutsPerLeaf(10);
 
         REPL repl = new REPL(game, nodeFactory, moveFactory, mctsConfiguration);
 

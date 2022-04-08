@@ -20,14 +20,8 @@ public class REPL {
         this.scanner = new Scanner(System.in);
         this.mctsConfiguration = mctsConfiguration;
 
-        System.out.println("----------   " + game.getTitle() + "   ----------");
-
-        if(mctsConfiguration.getMode() == MCTSMode.FIXED_ITERATIONS){
-            System.out.println("the MCTS uses a FIXED number of " + mctsConfiguration.getIterations() + " ITERATIONS\n");
-
-        }else{
-            System.out.println("the MCTS uses a FIXED TIME of " + mctsConfiguration.getSecondsToThink() + "s to think\n");
-        }
+        System.out.println("----------   " + game.getTitle() + "   ----------\n");
+        System.out.println(mctsConfiguration);
     }
 
     public Player readInPlayer() {
@@ -70,7 +64,6 @@ public class REPL {
             }
         }
     }
-
     // TODO: don't build up the whole Monte Carlo Tree again
     public void runMCTSandShowResult(){
         MonteCarloTreeSearch monteCarloTreeSearch = new MonteCarloTreeSearch(game, nodeFactory, mctsConfiguration);
