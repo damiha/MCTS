@@ -1,6 +1,11 @@
 package MCTS;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class MonteCarloTreeSearch {
 
@@ -10,6 +15,11 @@ public class MonteCarloTreeSearch {
 
     // not settings but stats (get updated during the search)
     private int rolloutsPerformed;
+    private int nThreads = 1;
+
+    // TODO: what other types of threadpools are there ? Do they offer a better performance ?
+    // TODO: whats the ideal thread pool size ?
+    private ThreadPoolExecutor threadPoolExecutor;
 
     public MonteCarloTreeSearch(Game game, NodeFactory nodeFactory, MCTSConfiguration mctsConfiguration){
         root = nodeFactory.createRootNode(game);
@@ -17,6 +27,12 @@ public class MonteCarloTreeSearch {
         this.mctsConfiguration = mctsConfiguration;
 
         rolloutsPerformed = 0;
+
+        // only spin up thread pool when needed (has some considerable overhead)
+        if(mctsConfiguration.isLeafParallelization()){
+            nThreads = 16 * Runtime.getRuntime().availableProcessors();
+            threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(nThreads);
+        }
     }
     public Move getBestMove(){
         if(mctsConfiguration.getMode() == MCTSMode.FIXED_ITERATIONS){
@@ -65,8 +81,8 @@ public class MonteCarloTreeSearch {
 
     public void showDistribution(){
 
-
-        System.out.println("Rollouts performed: " + rolloutsPerformed);
+        String threadString = nThreads == 1 ? "1 thread." : (nThreads + " threads.");
+        System.out.println(rolloutsPerformed + " rollouts performed by " + threadString);
         // sort by visits => best moves up top
         // sorting is permanent (destroys randomness that was created during expansion) but tree gets rebuild for every move
         root.getChildren().sort(new Comparator<Node>() {
@@ -107,7 +123,7 @@ public class MonteCarloTreeSearch {
         current = current.expand(nodeFactory);
 
         if(mctsConfiguration.isLeafParallelization()){
-            // TODO:
+            multiThreadedRolloutAndBackProp(current);
         }else{
             singleThreadedRolloutAndBackProp(current);
         }
@@ -123,6 +139,35 @@ public class MonteCarloTreeSearch {
 
             for(int i = 0; i < mctsConfiguration.getRolloutsPerLeaf(); i++){
                 winners[i] = current.rollout();
+            }
+            current.multiPropagate(winners);
+        }
+    }
+
+    public void multiThreadedRolloutAndBackProp(Node current){
+
+        // using the threadpool for one rollout is just not worth the time!
+        if(mctsConfiguration.getRolloutsPerLeaf() == 1){
+            Player winnerOfRollout = current.rollout();
+            current.singlePropagate(winnerOfRollout);
+        }
+        else{
+
+            ArrayList<Future<Player>> futureWinners = new ArrayList<Future<Player>>(mctsConfiguration.getRolloutsPerLeaf());
+            Player[] winners = new Player[mctsConfiguration.getRolloutsPerLeaf()];
+
+            for(int i = 0; i < mctsConfiguration.getRolloutsPerLeaf(); i++){
+                // submit a future (runnable that has a return value)
+                futureWinners.add(threadPoolExecutor.submit(current::rollout));
+            }
+
+            // collect the finished work
+            for(int i = 0; i < mctsConfiguration.getRolloutsPerLeaf(); i++){
+                try {
+                    winners[i] = futureWinners.get(i).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
             }
             current.multiPropagate(winners);
         }
