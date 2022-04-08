@@ -16,7 +16,7 @@ public class C4Main {
         MoveFactory moveFactory = new C4MoveFactory();
 
         MCTSConfiguration mctsConfiguration = new MCTSConfiguration();
-        mctsConfiguration.setFixedTime(20.0);
+        mctsConfiguration.setFixedTime(10.0);
         mctsConfiguration.setRolloutsPerLeaf(100);
         mctsConfiguration.setLeafParallelization(true);
 
