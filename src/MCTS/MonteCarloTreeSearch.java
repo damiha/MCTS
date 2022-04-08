@@ -17,6 +17,7 @@ public class MonteCarloTreeSearch {
     private int rolloutsPerformed;
     private int nThreads = 1;
 
+    // TODO: don't build up the whole Monte Carlo Tree again
     // TODO: what other types of threadpools are there ? Do they offer a better performance ?
     // TODO: whats the ideal thread pool size ?
     private ThreadPoolExecutor threadPoolExecutor;
@@ -35,12 +36,21 @@ public class MonteCarloTreeSearch {
         }
     }
     public Move getBestMove(){
+
+        Move bestMove;
+
         if(mctsConfiguration.getMode() == MCTSMode.FIXED_ITERATIONS){
-            return getBestMove(mctsConfiguration.getIterations());
+            bestMove = getBestMove(mctsConfiguration.getIterations());
         }
         else{
-            return getBestMove(mctsConfiguration.getSecondsToThink());
+            bestMove = getBestMove(mctsConfiguration.getSecondsToThink());
         }
+
+        // TODO: don't create threadpool for every move
+        if(threadPoolExecutor != null){
+            threadPoolExecutor.shutdownNow();
+        }
+        return bestMove;
     }
 
     public Move getBestMove(int iterations){

@@ -64,7 +64,6 @@ public class REPL {
             }
         }
     }
-    // TODO: don't build up the whole Monte Carlo Tree again
     public void runMCTSandShowResult(){
         MonteCarloTreeSearch monteCarloTreeSearch = new MonteCarloTreeSearch(game, nodeFactory, mctsConfiguration);
         Move bestMove = monteCarloTreeSearch.getBestMove();
