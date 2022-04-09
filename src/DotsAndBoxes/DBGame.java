@@ -6,6 +6,7 @@ import MCTS.MoveFormatException;
 import MCTS.Player;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class DBGame implements Game {
 
@@ -95,10 +96,11 @@ public class DBGame implements Game {
         }
     }
 
+    // input is already a canonical move
     @Override
     public void makeUserMove(Move userMove) throws MoveFormatException {
 
-        DBMove dbMove = (DBMove) userMove;
+        DBMove dbMove = ((DBMove) userMove);
 
         if(dbMove.x() < 0 || dbMove.x() >= width){
             throw new MoveFormatException("x should be between 0 and " + (width - 1));
@@ -112,7 +114,7 @@ public class DBGame implements Game {
             throw new MoveFormatException("this move is illegal.");
         }
 
-        move(userMove);
+        move(dbMove);
     }
 
     @Override
@@ -134,15 +136,41 @@ public class DBGame implements Game {
     @Override
     public ArrayList<Move> getAllLegalMoves() {
 
-        ArrayList<Move> allLegalMoves = new ArrayList<Move>();
+        HashSet<Move> legalMoveSet = new HashSet<>();
 
         for(int y = 0; y < height; y++){
             for(int x = 0; x < width; x++){
 
-                allLegalMoves.addAll(board[y][x].getAllMovesForTile());
+                boolean[] clicked = board[y][x].getClicked();
+
+                if(!clicked[Direction.TOP.get()]){
+                    legalMoveSet.add(getCanonicalMove(x, y, Direction.TOP));
+                }
+                if(!clicked[Direction.RIGHT.get()]){
+                    legalMoveSet.add(getCanonicalMove(x, y, Direction.RIGHT));
+                }
+                if(!clicked[Direction.BOTTOM.get()]){
+                    legalMoveSet.add(getCanonicalMove(x, y, Direction.BOTTOM));
+                }
+                if(!clicked[Direction.LEFT.get()]){
+                    legalMoveSet.add(getCanonicalMove(x, y, Direction.LEFT));
+                }
             }
         }
-        return allLegalMoves;
+        return new ArrayList<>(legalMoveSet);
+    }
+
+    // only the corner moves are left and top, all other moves get translated to bottom / right moves
+    // this version gets used by the mcts, the other method is inside the move factory class
+    public DBMove getCanonicalMove(int x, int y, Direction direction){
+        if(direction == Direction.LEFT && x > 0){
+            return new DBMove(x - 1, y, Direction.RIGHT);
+        }
+        else if(direction == Direction.TOP && y > 0){
+            return new DBMove(x, y - 1, Direction.BOTTOM);
+        }
+        // already canonical version
+        return new DBMove(x, y, direction);
     }
 
     @Override

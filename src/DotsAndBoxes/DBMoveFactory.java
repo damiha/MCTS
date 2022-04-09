@@ -32,6 +32,17 @@ public class DBMoveFactory implements MoveFactory {
         if(direction == null){
             throw new MoveFormatException("direction has to be either 'T', 'R', B' or 'L'");
         }
-        return new DBMove(x, y, direction);
+        return getCanonicalMove(new DBMove(x, y, direction));
+    }
+
+    public DBMove getCanonicalMove(DBMove move){
+        if(move.direction() == Direction.LEFT && move.x() > 0){
+            return new DBMove(move.x() - 1, move.y(), Direction.RIGHT);
+        }
+        else if(move.direction() == Direction.TOP && move.y() > 0){
+            return new DBMove(move.x(), move.y() - 1, Direction.BOTTOM);
+        }
+        // bottom and right moves already canonical version
+        return move;
     }
 }

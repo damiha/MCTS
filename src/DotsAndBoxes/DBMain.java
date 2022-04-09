@@ -11,7 +11,9 @@ public class DBMain {
         MoveFactory moveFactory = new DBMoveFactory();
 
         MCTSConfiguration mctsConfiguration = new MCTSConfiguration();
-        mctsConfiguration.setFixedTime(5.0);
+        mctsConfiguration.setFixedTime(10.0);
+        mctsConfiguration.setRolloutsPerLeaf(512);
+        mctsConfiguration.setLeafParallelization(true);
 
         REPL repl = new REPL(game, nodeFactory, moveFactory, mctsConfiguration);
 

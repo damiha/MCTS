@@ -8,8 +8,8 @@ import java.util.Arrays;
 
 public class Tile{
 
-    private int x;
-    private int y;
+    private final int x;
+    private final int y;
 
     private boolean[] clicked;
     private Player capturedBy;
@@ -41,24 +41,6 @@ public class Tile{
         capturedBy = player;
     }
 
-    public ArrayList<Move> getAllMovesForTile(){
-        ArrayList<Move> allMoves = new ArrayList<Move>();
-
-        if(!clicked[Direction.TOP.get()]){
-            allMoves.add(new DBMove(x, y, Direction.TOP));
-        }
-        if(!clicked[Direction.RIGHT.get()]){
-            allMoves.add(new DBMove(x, y, Direction.RIGHT));
-        }
-        if(!clicked[Direction.BOTTOM.get()]){
-            allMoves.add(new DBMove(x, y, Direction.BOTTOM));
-        }
-        if(!clicked[Direction.LEFT.get()]){
-            allMoves.add(new DBMove(x, y, Direction.LEFT));
-        }
-        return allMoves;
-    }
-
     public char[][] getConsoleRepresentation(){
 
         char topChar = clicked[Direction.TOP.get()] ? '_' : '.';
@@ -74,5 +56,9 @@ public class Tile{
                 {'x',bottomChar, bottomChar, bottomChar, 'x'},
 
         };
+    }
+
+    public boolean[] getClicked(){
+        return clicked;
     }
 }

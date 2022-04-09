@@ -10,7 +10,6 @@ public class REPL {
     private final MonteCarloTreeSearch monteCarloTreeSearch;
     private final Scanner scanner;
 
-    // TODO: add a settings / stats menu
     public REPL(Game game, NodeFactory nodeFactory, MoveFactory moveFactory, MCTSConfiguration mctsConfiguration) {
         this.game = game;
         this.moveFactory = moveFactory;
@@ -75,7 +74,7 @@ public class REPL {
             System.out.print("move: ");
             String command = scanner.nextLine();
 
-            Move nextMove = null;
+            Move nextMove;
             try {
                 nextMove = moveFactory.createMoveFromString(command);
                 return nextMove;
