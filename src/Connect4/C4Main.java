@@ -1,11 +1,6 @@
-package C4;
+package Connect4;
 
 import MCTS.*;
-import TTT.TTTGame;
-import TTT.TTTMoveFactory;
-import TTT.TTTNodeFactory;
-
-import java.util.Scanner;
 
 public class C4Main {
 

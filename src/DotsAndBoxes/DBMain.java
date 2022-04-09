@@ -1,11 +1,6 @@
 package DotsAndBoxes;
 
 import MCTS.*;
-import TTT.TTTGame;
-import TTT.TTTMoveFactory;
-import TTT.TTTNodeFactory;
-
-import java.util.Scanner;
 
 public class DBMain {
 

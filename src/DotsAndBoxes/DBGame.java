@@ -1,6 +1,5 @@
 package DotsAndBoxes;
 
-import C4.C4Move;
 import MCTS.Game;
 import MCTS.Move;
 import MCTS.MoveFormatException;

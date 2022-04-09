@@ -1,4 +1,4 @@
-package C4;
+package Connect4;
 
 import MCTS.Move;
 import MCTS.MoveFactory;

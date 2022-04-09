@@ -1,4 +1,4 @@
-package TTT;
+package TicTacToe;
 
 import MCTS.Move;
 import MCTS.MoveFactory;
