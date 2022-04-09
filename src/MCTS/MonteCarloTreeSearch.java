@@ -16,6 +16,7 @@ public class MonteCarloTreeSearch {
 
     // not settings but stats (get updated during the search)
     private int rolloutsPerformed;
+    private int maxSearchDepth;
     private int nThreads = 1;
 
     // TODO: what other types of threadpools are there ? Do they offer a better performance ?
@@ -29,6 +30,7 @@ public class MonteCarloTreeSearch {
         this.mctsConfiguration = mctsConfiguration;
 
         rolloutsPerformed = 0;
+        maxSearchDepth = 0;
 
         // only spin up thread pool when needed (has some considerable overhead)
         if(mctsConfiguration.isLeafParallelization()){
@@ -43,16 +45,23 @@ public class MonteCarloTreeSearch {
 
         for(Node child : root.getChildren()){
             if(child.getMoveThatLedToPosition().equals(moveTaken)){
-                root = child;
+                setAsRoot(child);
                 return;
             }
         }
         root = nodeFactory.createRootNode(game);
     }
+
+    public void setAsRoot(Node child){
+        root = child;
+        // this marks a node as parent
+        root.setParent(null);
+    }
     public Move getBestMove(){
 
         Move bestMove;
         rolloutsPerformed = 0;
+        maxSearchDepth = 0;
 
         if(mctsConfiguration.getMode() == MCTSMode.FIXED_ITERATIONS){
             bestMove = getBestMove(mctsConfiguration.getIterations());
@@ -66,6 +75,7 @@ public class MonteCarloTreeSearch {
     public Move getBestMove(int iterations){
 
         rolloutsPerformed = 0;
+        maxSearchDepth = 0;
 
         for(int i = 0; i < iterations; i++){
             runStep();
@@ -111,6 +121,7 @@ public class MonteCarloTreeSearch {
 
         String threadString = nThreads == 1 ? "1 thread." : (nThreads + " threads.");
         System.out.println(rolloutsPerformed + " rollouts performed by " + threadString);
+        System.out.println("max search depth: " + maxSearchDepth);
         // sort by visits => best moves up top
         // sorting is permanent (destroys randomness that was created during expansion) but tree gets rebuild for every move
         root.getChildren().sort(new Comparator<Node>() {
@@ -158,9 +169,12 @@ public class MonteCarloTreeSearch {
     }
 
     public void singleThreadedRolloutAndBackProp(Node current){
+
+        int currentSearchDepth = 0;
+
         if(mctsConfiguration.getRolloutsPerLeaf() == 1){
             Player winnerOfRollout = current.rollout();
-            current.singlePropagate(winnerOfRollout);
+            currentSearchDepth = current.singlePropagateAndReturnDepth(winnerOfRollout);
         }
         else{
             Player[] winners = new Player[mctsConfiguration.getRolloutsPerLeaf()];
@@ -168,16 +182,20 @@ public class MonteCarloTreeSearch {
             for(int i = 0; i < mctsConfiguration.getRolloutsPerLeaf(); i++){
                 winners[i] = current.rollout();
             }
-            current.multiPropagate(winners);
+            currentSearchDepth = current.multiPropagateAndReturnDepth(winners);
         }
+
+        maxSearchDepth = Math.max(maxSearchDepth, currentSearchDepth);
     }
 
     public void multiThreadedRolloutAndBackProp(Node current){
 
+        int currentSearchDepth;
+
         // using the threadpool for one rollout is just not worth the time!
         if(mctsConfiguration.getRolloutsPerLeaf() == 1){
             Player winnerOfRollout = current.rollout();
-            current.singlePropagate(winnerOfRollout);
+            currentSearchDepth = current.singlePropagateAndReturnDepth(winnerOfRollout);
         }
         else{
 
@@ -197,7 +215,9 @@ public class MonteCarloTreeSearch {
                     e.printStackTrace();
                 }
             }
-            current.multiPropagate(winners);
+            currentSearchDepth = current.multiPropagateAndReturnDepth(winners);
         }
+
+        maxSearchDepth = Math.max(maxSearchDepth, currentSearchDepth);
     }
 }

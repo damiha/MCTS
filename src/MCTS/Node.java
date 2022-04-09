@@ -90,9 +90,10 @@ public abstract class Node {
         return exploitationTerm + C * explorationTerm;
     }
 
-    public void singlePropagate(Player winnerOfRollout){
+    public int singlePropagateAndReturnDepth(Player winnerOfRollout){
 
         Node current = this;
+        int depth = -1;
 
         while(current != null){
             current.visits += 1.0;
@@ -103,17 +104,22 @@ public abstract class Node {
             else if(winnerOfRollout == Player.getOpponent(current.playerWhoTookMove)){
                 current.value -= 1;
             }
+            depth += 1;
             current = current.parent;
         }
+
+        return depth;
     }
 
-    public void multiPropagate(Player[] winners) {
+    public int multiPropagateAndReturnDepth(Player[] winners) {
 
         Node current = this;
+        int depth = -1;
 
         while (current != null) {
 
             for (Player winnerOfRollout : winners) {
+
                 current.visits += 1.0;
 
                 if (winnerOfRollout == current.playerWhoTookMove) {
@@ -122,8 +128,11 @@ public abstract class Node {
                     current.value -= 1;
                 }
             }
+            depth += 1;
             current = current.parent;
         }
+
+        return depth;
     }
 
     public Move selectRandomMove(){
@@ -156,6 +165,10 @@ public abstract class Node {
         return game;
     }
 
+    public void setParent(Node parent){
+        this.parent = parent;
+    }
+
     public boolean isFullyExpanded(){
         return movesToTry.isEmpty();
     }
@@ -167,4 +180,5 @@ public abstract class Node {
     public Player getPlayerWhoTookMove(){
         return playerWhoTookMove;
     }
+
 }
