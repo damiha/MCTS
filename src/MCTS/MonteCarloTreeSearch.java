@@ -9,7 +9,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class MonteCarloTreeSearch {
 
-    private final Node root;
+    private Node root;
+    private final Game game;
     private final NodeFactory nodeFactory;
     private final MCTSConfiguration mctsConfiguration;
 
@@ -17,13 +18,13 @@ public class MonteCarloTreeSearch {
     private int rolloutsPerformed;
     private int nThreads = 1;
 
-    // TODO: don't build up the whole Monte Carlo Tree again
     // TODO: what other types of threadpools are there ? Do they offer a better performance ?
     // TODO: whats the ideal thread pool size ?
     private ThreadPoolExecutor threadPoolExecutor;
 
     public MonteCarloTreeSearch(Game game, NodeFactory nodeFactory, MCTSConfiguration mctsConfiguration){
         root = nodeFactory.createRootNode(game);
+        this.game = game;
         this.nodeFactory = nodeFactory;
         this.mctsConfiguration = mctsConfiguration;
 
@@ -35,9 +36,23 @@ public class MonteCarloTreeSearch {
             threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(nThreads);
         }
     }
+
+    // don't rebuild whole tree, but reuse old
+    // call this function every move to keep everything up to date
+    public void updateTreeFrom(Move moveTaken){
+
+        for(Node child : root.getChildren()){
+            if(child.getMoveThatLedToPosition().equals(moveTaken)){
+                root = child;
+                return;
+            }
+        }
+        root = nodeFactory.createRootNode(game);
+    }
     public Move getBestMove(){
 
         Move bestMove;
+        rolloutsPerformed = 0;
 
         if(mctsConfiguration.getMode() == MCTSMode.FIXED_ITERATIONS){
             bestMove = getBestMove(mctsConfiguration.getIterations());
@@ -45,15 +60,12 @@ public class MonteCarloTreeSearch {
         else{
             bestMove = getBestMove(mctsConfiguration.getSecondsToThink());
         }
-
-        // TODO: don't create threadpool for every move
-        if(threadPoolExecutor != null){
-            threadPoolExecutor.shutdownNow();
-        }
         return bestMove;
     }
 
     public Move getBestMove(int iterations){
+
+        rolloutsPerformed = 0;
 
         for(int i = 0; i < iterations; i++){
             runStep();
@@ -71,6 +83,12 @@ public class MonteCarloTreeSearch {
             rolloutsPerformed += mctsConfiguration.getRolloutsPerLeaf();
         }
         return selectBestMove();
+    }
+
+    public void shutDownThreadPool(){
+        if(threadPoolExecutor != null){
+            threadPoolExecutor.shutdownNow();
+        }
     }
 
     public Move selectBestMove(){

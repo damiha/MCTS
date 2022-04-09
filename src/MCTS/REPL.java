@@ -5,20 +5,18 @@ import java.util.Scanner;
 public class REPL {
 
     private final Game game;
-    private final NodeFactory nodeFactory;
     private final MoveFactory moveFactory;
 
-    private final MCTSConfiguration mctsConfiguration;
+    private final MonteCarloTreeSearch monteCarloTreeSearch;
     private final Scanner scanner;
 
     // TODO: add a settings / stats menu
     public REPL(Game game, NodeFactory nodeFactory, MoveFactory moveFactory, MCTSConfiguration mctsConfiguration) {
         this.game = game;
-        this.nodeFactory = nodeFactory;
         this.moveFactory = moveFactory;
 
         this.scanner = new Scanner(System.in);
-        this.mctsConfiguration = mctsConfiguration;
+        this.monteCarloTreeSearch = new MonteCarloTreeSearch(game, nodeFactory, mctsConfiguration);
 
         System.out.println("----------   " + game.getTitle() + "   ----------\n");
         System.out.println(mctsConfiguration);
@@ -56,6 +54,7 @@ public class REPL {
 
             if (game.isGameOver()) {
                 printGameOver();
+                monteCarloTreeSearch.shutDownThreadPool();
                 return;
             }
 
@@ -65,7 +64,6 @@ public class REPL {
         }
     }
     public void runMCTSandShowResult(){
-        MonteCarloTreeSearch monteCarloTreeSearch = new MonteCarloTreeSearch(game, nodeFactory, mctsConfiguration);
         Move bestMove = monteCarloTreeSearch.getBestMove();
         monteCarloTreeSearch.showDistribution();
         System.out.println("best move according to MCTS: " + bestMove.getString());
@@ -97,6 +95,7 @@ public class REPL {
 
             try {
                 game.makeUserMove(move);
+                monteCarloTreeSearch.updateTreeFrom(move);
                 return;
 
             } catch (MoveFormatException e) {
